@@ -2,14 +2,28 @@ const express = require("express");
 const cors = require("cors");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
+const { getFirestore } = require("firebase/firestore");
+const { initializeApp } = require("firebase/app");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const firebaseConfig = {
+       apiKey: "AIzaSyCdDsg6x19bzJAokeCqtfdBYpv4aoQUH64",
+       authDomain: "dti-ui.firebaseapp.com",
+       projectId: "dti-ui",
+       storageBucket: "dti-ui.appspot.com",
+       messagingSenderId: "283041040161",
+       appId: "1:283041040161:web:de955f8da2c49742492060",
+       measurementId: "G-BTYJBZYSYT",
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
 const portName = process.env.ARDUINO_PORT;
 const baudRate = 9600;
-
 const port = new SerialPort({
        lock: false,
        path: portName,
@@ -45,16 +59,8 @@ app.post("/pixel", async (req, res) => {
        try {
               console.log(req.body);
               const rgbValues = req.body["rgb"];
-              // Extract the numeric values using a regular expression
-              // Remove the 'rgb(' prefix and ')' suffix
               const valuesString = rgbValues.substring(4, rgbValues.length - 1);
-              console.log("hi", valuesString);
-              console.log("hi", rgbValues);
-
-              // Split the string into an array of individual values
               const valuesArray = valuesString.split(", ");
-
-              // Extract individual r, g, and b values
               valuesArray.forEach((value, index) => {
                      if (valuesArray[index].length === 0) {
                             valuesArray[index] = "000";
@@ -71,18 +77,14 @@ app.post("/pixel", async (req, res) => {
               const g = valuesArray[1];
               const b = valuesArray[2];
 
-              console.log("Red:", r); // Output: 48
-              console.log("Green:", g); // Output: 127
-              console.log("Blue:", b); // Output: 230
-
               port.write(`r${r}g${g}b${b}`, function (err) {
                      if (err) {
                             return console.log("Error on write: ", err.message);
                      }
               });
-              res.status(200).header("Access-Control-Allow-Origin", "*").send(response);
+              res.status(200).header("Access-Control-Allow-Origin", "*").send("nice");
        } catch (e) {
-              res.status(403).header("Access-Control-Allow-Origin", "*").send("Team already redeemed.");
+              console.log(e);
        }
 });
 
