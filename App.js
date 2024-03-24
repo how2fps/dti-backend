@@ -1,28 +1,40 @@
-const SerialPort = require("serialport");
-const Readline = require("@serialport/parser-readline");
+const express = require("express");
+const { SerialPort } = require("serialport");
+const { ReadlineParser } = require("@serialport/parser-readline");
+require("dotenv").config();
 
-const deviceLocation = "COM5";
+const app = express();
+// Define the serial port
+const portName = process.env.ARDUINO_PORT; // Change this to your Arduino's port
 const baudRate = 9600;
-const matched = false;
 
-SerialPort.list().then((devices) => {
-       console.log(devices);
-       if (matched) {
-              const SP = new SerialPort(deviceLocation, {
-                     baudRate: baudRate,
-              });
+const port = new SerialPort({
+       lock: false,
+       path: portName,
+       baudRate: baudRate,
+});
+const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" })); // Use Readline parser to read data line by line
+parser.on("data", (data) => {
+       console.log("Data received from Arduino:", data.toString()); // Convert the incoming buffer to a string and log it
+});
+port.on("open", () => {
+       // Now that the port is open, you can write data to it
 
-              SP.on("open", () => this.onConnectionOpened());
-              SP.on("closed", () => this.onConnectionClosed());
-
-              const parser = SP.pipe(new Readline({ delimiter: "\n" }));
-              parser.on("data", (data) => this.onDataReceived(data));
-
-              SP.write("message", (err) => {
+       setTimeout(() => {
+              port.write("r255g255b002", function (err) {
                      if (err) {
                             return console.log("Error on write: ", err.message);
                      }
-                     console.log("message written");
               });
-       }
+       }, 2000);
 });
+
+port.on("readable", function () {
+       console.log("Data:", port.read());
+});
+// Open errors will be emitted as an error event
+port.on("error", function (err) {
+       console.log("Error: ", err.message);
+});
+// Start the Express server
+app.listen(3000, () => {});
