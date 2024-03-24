@@ -20,7 +20,7 @@ port.on("open", () => {
        // Now that the port is open, you can write data to it
 
        setTimeout(() => {
-              port.write("main screen turn on", function (err) {
+              port.write("r255g255b002", function (err) {
                      if (err) {
                             return console.log("Error on write: ", err.message);
                      }
@@ -28,7 +28,7 @@ port.on("open", () => {
        }, 2000);
 });
 
-port.write("main screen turn on\n", function (err) {
+port.write("main screen turn on", function (err) {
        if (err) {
               return console.log("Error on write: ", err.message);
        }
