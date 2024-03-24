@@ -1,6 +1,6 @@
 const express = require("express");
 const { SerialPort } = require("serialport");
-const Readline = require("@serialport/parser-readline");
+const { ReadlineParser } = require("@serialport/parser-readline");
 
 const app = express();
 // Define the serial port
@@ -12,7 +12,10 @@ const port = new SerialPort({
        path: portName,
        baudRate: baudRate,
 });
-
+const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" })); // Use Readline parser to read data line by line
+parser.on("data", (data) => {
+       console.log("Data received from Arduino:", data.toString()); // Convert the incoming buffer to a string and log it
+});
 port.on("open", () => {
        // Now that the port is open, you can write data to it
 
@@ -22,15 +25,17 @@ port.on("open", () => {
                             return console.log("Error on write: ", err.message);
                      }
               });
-       }, 3000);
+       }, 2000);
 });
 
-port.write("main screen turn on", function (err) {
+port.write("main screen turn on\n", function (err) {
        if (err) {
               return console.log("Error on write: ", err.message);
        }
 });
-
+port.on("readable", function () {
+       console.log("Data:", port.read());
+});
 // Open errors will be emitted as an error event
 port.on("error", function (err) {
        console.log("Error: ", err.message);
