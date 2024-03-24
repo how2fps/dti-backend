@@ -4,7 +4,7 @@ const { ReadlineParser } = require("@serialport/parser-readline");
 
 const app = express();
 // Define the serial port
-const portName = "COM5"; // Change this to your Arduino's port
+const portName = process.env.ARDUINO_PORT; // Change this to your Arduino's port
 const baudRate = 9600;
 
 const port = new SerialPort({
