@@ -57,8 +57,8 @@ port.on("error", function (err) {
 
 app.post("/pixel", async (req, res) => {
        try {
-              console.log(req.body);
               const rgbValues = req.body["rgb"];
+              const coordinates = req.body["coordinates"];
               const valuesString = rgbValues.substring(4, rgbValues.length - 1);
               const valuesArray = valuesString.split(", ");
               valuesArray.forEach((value, index) => {
@@ -76,8 +76,8 @@ app.post("/pixel", async (req, res) => {
               const r = valuesArray[0];
               const g = valuesArray[1];
               const b = valuesArray[2];
-
-              port.write(`r${r}g${g}b${b}`, function (err) {
+              console.log(JSON.stringify(coordinates));
+              port.write(`r${r}g${g}b${b}c${JSON.stringify(coordinates)}`, function (err) {
                      if (err) {
                             return console.log("Error on write: ", err.message);
                      }
