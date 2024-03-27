@@ -125,11 +125,33 @@ app.get("/pixel", async (req, res) => {
                      });
               });
 
-              // gridArray.map((x, index) => {
-              //        console.log("index: " + ":" + index);
-              //        console.log(x);
-              // });
               res.status(200).header("Access-Control-Allow-Origin", "*").send(docSnap.data().gridData);
+       } catch (e) {
+              console.log(e);
+       }
+});
+
+app.get("/bus-arrives", async (req, res) => {
+       try {
+              port.write("bus_arrives", function (err) {
+                     if (err) {
+                            return console.log("Error on write: ", err.message);
+                     }
+              });
+              res.status(200).header("Access-Control-Allow-Origin", "*").send("Bus arrive");
+       } catch (e) {
+              console.log(e);
+       }
+});
+
+app.get("/bus-leaves", async (req, res) => {
+       try {
+              port.write("bus_left", function (err) {
+                     if (err) {
+                            return console.log("Error on write: ", err.message);
+                     }
+              });
+              res.status(200).header("Access-Control-Allow-Origin", "*").send("Bus left");
        } catch (e) {
               console.log(e);
        }
