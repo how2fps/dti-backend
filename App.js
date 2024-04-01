@@ -29,16 +29,58 @@ const port = new SerialPort({
        path: portName,
        baudRate: baudRate,
 });
+
 const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+async function fetchPixels() {
+       try {
+              const docRef = doc(db, "pixels", "pixels");
+              const docSnap = await getDoc(docRef);
+              const gridArray = JSON.parse(docSnap.data().gridData);
+              const dataSentToArduino = [];
+              gridArray.map((row, rowIndex) => {
+                     row.map((column, columnIndex) => {
+                            if (column.length > 0) {
+                                   const valuesString = column.substring(4, column.length - 1);
+                                   const valuesArray = valuesString.split(", ");
+                                   valuesArray.forEach((value, index) => {
+                                          if (valuesArray[index].length === 0) {
+                                                 valuesArray[index] = "000";
+                                          }
+                                          if (valuesArray[index].length === 1) {
+                                                 valuesArray[index] = "00" + valuesArray[index];
+                                          }
+                                          if (valuesArray[index].length === 2) {
+                                                 valuesArray[index] = "0" + valuesArray[index];
+                                          }
+                                   });
+                                   const r = valuesArray[0];
+                                   const g = valuesArray[1];
+                                   const b = valuesArray[2];
+                                   dataSentToArduino.push(`r${r}g${g}b${b}c${JSON.stringify([rowIndex, columnIndex])}`);
+                            }
+                     });
+              });
+              port.write(dataSentToArduino.join(""), function (err) {
+                     if (err) {
+                            return console.log("Error on write: ", err.message);
+                     }
+              });
+       } catch (e) {
+              console.log(e);
+       }
+}
+
 parser.on("data", (data) => {
-       console.log("Data received from Arduino:", data.toString());
+       if (data.toString() == "bus_left") {
+              fetchPixels();
+       }
 });
 
 port.on("open", () => {
        // Now that the port is open, you can write data to it
 
        setTimeout(() => {
-              port.write("r255g255b002", function (err) {
+              port.write("hi", function (err) {
                      if (err) {
                             return console.log("Error on write: ", err.message);
                      }
@@ -92,43 +134,7 @@ app.post("/pixel", async (req, res) => {
 });
 
 app.get("/pixel", async (req, res) => {
-       try {
-              const docRef = doc(db, "pixels", "pixels");
-              const docSnap = await getDoc(docRef);
-              const gridArray = JSON.parse(docSnap.data().gridData);
-              gridArray.map((row, rowIndex) => {
-                     row.map((column, columnIndex) => {
-                            if (column.length > 0) {
-                                   const valuesString = column.substring(4, column.length - 1);
-                                   const valuesArray = valuesString.split(", ");
-                                   valuesArray.forEach((value, index) => {
-                                          if (valuesArray[index].length === 0) {
-                                                 valuesArray[index] = "000";
-                                          }
-                                          if (valuesArray[index].length === 1) {
-                                                 valuesArray[index] = "00" + valuesArray[index];
-                                          }
-                                          if (valuesArray[index].length === 2) {
-                                                 valuesArray[index] = "0" + valuesArray[index];
-                                          }
-                                   });
-
-                                   const r = valuesArray[0];
-                                   const g = valuesArray[1];
-                                   const b = valuesArray[2];
-                                   port.write(`r${r}g${g}b${b}c${JSON.stringify([rowIndex, columnIndex])}`, function (err) {
-                                          if (err) {
-                                                 return console.log("Error on write: ", err.message);
-                                          }
-                                   });
-                            }
-                     });
-              });
-
-              res.status(200).header("Access-Control-Allow-Origin", "*").send(docSnap.data().gridData);
-       } catch (e) {
-              console.log(e);
-       }
+       await fetchPixels();
 });
 
 app.get("/bus-arrives", async (req, res) => {
