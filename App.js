@@ -71,6 +71,7 @@ async function fetchPixels() {
 }
 
 parser.on("data", (data) => {
+       console.log(data.toString());
        if (data.toString() == "bus_left") {
               fetchPixels();
        }
@@ -134,7 +135,43 @@ app.post("/pixel", async (req, res) => {
 });
 
 app.get("/pixel", async (req, res) => {
-       await fetchPixels();
+       try {
+              const docRef = doc(db, "pixels", "pixels");
+              const docSnap = await getDoc(docRef);
+              const gridArray = JSON.parse(docSnap.data().gridData);
+              const dataSentToArduino = [];
+              gridArray.map((row, rowIndex) => {
+                     row.map((column, columnIndex) => {
+                            if (column.length > 0) {
+                                   const valuesString = column.substring(4, column.length - 1);
+                                   const valuesArray = valuesString.split(", ");
+                                   valuesArray.forEach((value, index) => {
+                                          if (valuesArray[index].length === 0) {
+                                                 valuesArray[index] = "000";
+                                          }
+                                          if (valuesArray[index].length === 1) {
+                                                 valuesArray[index] = "00" + valuesArray[index];
+                                          }
+                                          if (valuesArray[index].length === 2) {
+                                                 valuesArray[index] = "0" + valuesArray[index];
+                                          }
+                                   });
+                                   const r = valuesArray[0];
+                                   const g = valuesArray[1];
+                                   const b = valuesArray[2];
+                                   dataSentToArduino.push(`r${r}g${g}b${b}c${JSON.stringify([rowIndex, columnIndex])}`);
+                            }
+                     });
+              });
+              port.write(dataSentToArduino.join(""), function (err) {
+                     if (err) {
+                            return console.log("Error on write: ", err.message);
+                     }
+              });
+              res.send(gridArray);
+       } catch (e) {
+              console.log(e);
+       }
 });
 
 app.get("/bus-arrives", async (req, res) => {
