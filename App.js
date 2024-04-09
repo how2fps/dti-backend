@@ -71,7 +71,7 @@ async function fetchPixels() {
 }
 
 parser.on("data", (data) => {
-       console.log(data.toString());
+       // console.log(data.toString());
        if (data.toString() == "bus_left") {
               fetchPixels();
        }
