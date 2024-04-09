@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const WebSocket = require("ws");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 const { getFirestore, doc, setDoc, getDoc } = require("firebase/firestore");
@@ -9,6 +10,18 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+const wss = new WebSocket.Server({ port: 8080 });
+
+let connectedClient;
+wss.on("connection", function connection(ws) {
+       console.log("Client connected");
+       connectedClient = ws;
+       ws.on("message", function incoming(message) {
+              console.log("received: %s", message);
+              // Handle received message from client
+       });
+       ws.send("Hello from server");
+});
 
 const firebaseConfig = {
        apiKey: "AIzaSyCdDsg6x19bzJAokeCqtfdBYpv4aoQUH64",
@@ -71,8 +84,11 @@ async function fetchPixels() {
 }
 
 parser.on("data", (data) => {
-       // console.log(data.toString());
+       if (data.toString() === "bus_arrives") {
+              connectedClient.send("bus_arrives");
+       }
        if (data.toString() == "bus_left") {
+              connectedClient.send("bus_left");
               fetchPixels();
        }
 });
@@ -200,4 +216,4 @@ app.get("/bus-leaves", async (req, res) => {
        }
 });
 
-app.listen(3000, () => {});
+app.liste`1`
