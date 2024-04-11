@@ -69,7 +69,19 @@ async function fetchPixels() {
                                    const r = valuesArray[0];
                                    const g = valuesArray[1];
                                    const b = valuesArray[2];
-                                   dataSentToArduino.push(`r${r}g${g}b${b}c${JSON.stringify([rowIndex, columnIndex])}`);
+                                   const coords = JSON.stringify([rowIndex, columnIndex]);
+                                   if (coords === "[4,11]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
+                                   }
+                                   if (coords === "[4,12]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
+                                   }
+                                   if (coords === "[4,13]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,2]"}`);
+                                   }
+                                   if (coords === "[4,14]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
+                                   }
                             }
                      });
               });
@@ -90,6 +102,9 @@ parser.on("data", (data) => {
        if (data.toString() == "bus_left") {
               connectedClient.send("bus_left");
               fetchPixels();
+       }
+       if (data.toString() == "bus_leaving") {
+              connectedClient.send("bus_leaving");
        }
 });
 
@@ -136,11 +151,36 @@ app.post("/pixel", async (req, res) => {
               const r = valuesArray[0];
               const g = valuesArray[1];
               const b = valuesArray[2];
-              port.write(`r${r}g${g}b${b}c${JSON.stringify(coordinates)}`, function (err) {
-                     if (err) {
-                            return console.log("Error on write: ", err.message);
-                     }
-              });
+              const coords = JSON.stringify(coordinates);
+              if (coords === "[4,11]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,0]"}`, function (err) {
+                            if (err) {
+                                   return console.log("Error on write: ", err.message);
+                            }
+                     });
+              }
+              if (coords === "[4,12]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,1]"}`, function (err) {
+                            if (err) {
+                                   return console.log("Error on write: ", err.message);
+                            }
+                     });
+              }
+              if (coords === "[4,13]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,2]"}`, function (err) {
+                            if (err) {
+                                   return console.log("Error on write: ", err.message);
+                            }
+                     });
+              }
+              if (coords === "[4,14]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,3]"}`, function (err) {
+                            if (err) {
+                                   return console.log("Error on write: ", err.message);
+                            }
+                     });
+              }
+
               await setDoc(doc(db, "pixels", "pixels"), {
                      gridData: JSON.stringify(gridData),
               });
@@ -152,6 +192,7 @@ app.post("/pixel", async (req, res) => {
 
 app.get("/pixel", async (req, res) => {
        try {
+              console.log("its running");
               const docRef = doc(db, "pixels", "pixels");
               const docSnap = await getDoc(docRef);
               const gridArray = JSON.parse(docSnap.data().gridData);
@@ -175,7 +216,19 @@ app.get("/pixel", async (req, res) => {
                                    const r = valuesArray[0];
                                    const g = valuesArray[1];
                                    const b = valuesArray[2];
-                                   dataSentToArduino.push(`r${r}g${g}b${b}c${JSON.stringify([rowIndex, columnIndex])}`);
+                                   const coords = JSON.stringify([rowIndex, columnIndex]);
+                                   if (coords === "[4,11]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
+                                   }
+                                   if (coords === "[4,12]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
+                                   }
+                                   if (coords === "[4,13]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,2]"}`);
+                                   }
+                                   if (coords === "[4,14]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
+                                   }
                             }
                      });
               });
@@ -216,4 +269,4 @@ app.get("/bus-leaves", async (req, res) => {
        }
 });
 
-app.liste`1`
+app.listen(3000);
