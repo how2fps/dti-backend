@@ -70,17 +70,17 @@ async function fetchPixels() {
                                    const g = valuesArray[1];
                                    const b = valuesArray[2];
                                    const coords = JSON.stringify([rowIndex, columnIndex]);
-                                   if (coords === "[4,11]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
+                                   if (coords === "[3,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
                                    }
-                                   if (coords === "[4,12]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
-                                   }
-                                   if (coords === "[4,13]") {
+                                   if (coords === "[4,10]") {
                                           dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,2]"}`);
                                    }
-                                   if (coords === "[4,14]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
+                                   if (coords === "[5,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
+                                   }
+                                   if (coords === "[6,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
                                    }
                             }
                      });
@@ -152,29 +152,29 @@ app.post("/pixel", async (req, res) => {
               const g = valuesArray[1];
               const b = valuesArray[2];
               const coords = JSON.stringify(coordinates);
-              if (coords === "[4,11]") {
-                     port.write(`r${r}g${g}b${b}c${"[0,0]"}`, function (err) {
+              if (coords === "[3,10]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,3]"}`, function (err) {
                             if (err) {
                                    return console.log("Error on write: ", err.message);
                             }
                      });
               }
-              if (coords === "[4,12]") {
-                     port.write(`r${r}g${g}b${b}c${"[0,1]"}`, function (err) {
-                            if (err) {
-                                   return console.log("Error on write: ", err.message);
-                            }
-                     });
-              }
-              if (coords === "[4,13]") {
+              if (coords === "[4,10]") {
                      port.write(`r${r}g${g}b${b}c${"[0,2]"}`, function (err) {
                             if (err) {
                                    return console.log("Error on write: ", err.message);
                             }
                      });
               }
-              if (coords === "[4,14]") {
-                     port.write(`r${r}g${g}b${b}c${"[0,3]"}`, function (err) {
+              if (coords === "[5,10]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,1]"}`, function (err) {
+                            if (err) {
+                                   return console.log("Error on write: ", err.message);
+                            }
+                     });
+              }
+              if (coords === "[6,10]") {
+                     port.write(`r${r}g${g}b${b}c${"[0,0]"}`, function (err) {
                             if (err) {
                                    return console.log("Error on write: ", err.message);
                             }
@@ -217,17 +217,17 @@ app.get("/pixel", async (req, res) => {
                                    const g = valuesArray[1];
                                    const b = valuesArray[2];
                                    const coords = JSON.stringify([rowIndex, columnIndex]);
-                                   if (coords === "[4,11]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
+                                   if (coords === "[3,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
                                    }
-                                   if (coords === "[4,12]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
-                                   }
-                                   if (coords === "[4,13]") {
+                                   if (coords === "[4,10]") {
                                           dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,2]"}`);
                                    }
-                                   if (coords === "[4,14]") {
-                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,3]"}`);
+                                   if (coords === "[5,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,1]"}`);
+                                   }
+                                   if (coords === "[6,10]") {
+                                          dataSentToArduino.push(`r${r}g${g}b${b}c${"[0,0]"}`);
                                    }
                             }
                      });
